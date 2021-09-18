@@ -77,7 +77,7 @@ public class HttpRouter<T> {
         return new RouterMatch<>(paramsContainer, attachment);
     }
 
-    public void addRoute(String httpMethod, String path, T attachment) {
+    public HttpRouter<T> addRoute(String httpMethod, String path, T attachment) {
         if (path == null) {
             throw new IllegalArgumentException("Path cannot be null");
         }
@@ -143,5 +143,23 @@ public class HttpRouter<T> {
                 nodeToInspect.setAttachment(attachment);
             }
         }
+
+        return this;
+    }
+
+    public HttpRouter<T> GET(String path, T attachment) {
+        return addRoute("GET", path, attachment);
+    }
+
+    public HttpRouter<T> POST(String path, T attachment) {
+        return addRoute("POST", path, attachment);
+    }
+
+    public HttpRouter<T> PUT(String path, T attachment) {
+        return addRoute("PUT", path, attachment);
+    }
+
+    public HttpRouter<T> DELETE(String path, T attachment) {
+        return addRoute("DELETE", path, attachment);
     }
 }

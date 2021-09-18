@@ -3,11 +3,11 @@ package com.ukarim.httprouter;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class UrlUtil {
+final class UrlUtil {
 
     private UrlUtil() {}
 
-    public static List<String> toPathSegments(String path) {
+    static List<String> toPathSegments(String path) {
         int length = path.length();
         int paramsStartIdx = path.indexOf('?');
 

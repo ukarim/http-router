@@ -3,7 +3,7 @@ package com.ukarim.httprouter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Node<T> {
+final class Node<T> {
 
     private final String name;
 
@@ -13,28 +13,28 @@ public class Node<T> {
 
     private T attachment;
 
-    public Node(String name, boolean isParam) {
+    Node(String name, boolean isParam) {
         this.name = name;
         this.isParam = isParam;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public boolean isParam() {
+    boolean isParam() {
         return isParam;
     }
 
-    public List<Node<T>> getChildNodes() {
+    List<Node<T>> getChildNodes() {
         return childNodes;
     }
 
-    public T getAttachment() {
+    T getAttachment() {
         return attachment;
     }
 
-    public void setAttachment(T attachment) {
+    void setAttachment(T attachment) {
         this.attachment = attachment;
     }
 }

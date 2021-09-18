@@ -12,6 +12,14 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+
+/*
+    Run the main method and try to make http requests
+
+    curl localhost:8080/users/ukarim/uppercase
+    curl -X POST localhost:8080/random-num
+ */
 
 public class JettyExample {
 
@@ -33,8 +41,9 @@ class RoutingHandler extends AbstractHandler {
     private final HttpRouter<HttpHandler> httpRouter = new HttpRouter<>();
 
     public RoutingHandler() {
-        httpRouter.addRoute("GET", "/users/:username/uppercase", new UppercaseUsernameHandler());
-        httpRouter.addRoute("GET", "/hello", new HelloHandler());
+        httpRouter
+                .GET("/users/:username/uppercase", new UppercaseUsernameHandler())
+                .POST("/random-num", new RandomNumHandler());
     }
 
     @Override
@@ -45,7 +54,7 @@ class RoutingHandler extends AbstractHandler {
             Params params = routerMatch.getParams();
 
             handler.handle(request, response, params);
-            baseRequest.setHandled(true);
+            baseRequest.setHandled(true); // otherwise you will receive default 404 page
         }
     }
 }
@@ -65,16 +74,19 @@ class UppercaseUsernameHandler implements HttpHandler {
         String username = params.getParam("username");
         response.setStatus(200);
         response.setContentType("text/plain;charset=utf-8");
-        response.getWriter().write("Uppercase username: " + username.toUpperCase());
+        response.getWriter().write("Uppercase username: " + username.toUpperCase() + "\n");
     }
 }
 
-class HelloHandler implements HttpHandler {
+class RandomNumHandler implements HttpHandler {
+
+    private final SecureRandom random = new SecureRandom();
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Params params) throws IOException {
         response.setStatus(200);
         response.setContentType("text/plain;charset=utf-8");
-        response.getWriter().write("Hello!");
+        String respText = String.format("Random num between 0 and 100: %s\n", random.nextInt(100));
+        response.getWriter().write(respText);
     }
 }
