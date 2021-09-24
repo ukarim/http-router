@@ -32,31 +32,19 @@ public class HttpRouter<T> {
 
         for (int i = 0; i < pathSegmentsCount; i++) {
             String pathSegment = pathSegments.get(i);
-            List<Node<T>> childNodes = nodeToInspect.getChildNodes();
-            Node<T> paramNode = null;
-            boolean matched = false;
 
-            for (Node<T> childNode : childNodes) {
-                if (paramNode == null && childNode.isParam()) {
-                    paramNode = childNode;
-                    continue;
-                }
-
-                if (pathSegment.equals(childNode.getName())) {
-                    nodeToInspect = childNode;
-                    matched = true;
+            var childNode = nodeToInspect.getChildNode(pathSegment);
+            if (childNode != null) {
+                nodeToInspect = childNode;
+            } else {
+                var paramChildNode = nodeToInspect.getParamChildNode();
+                if (paramChildNode == null) {
+                    // totally unmatched
                     break;
-                }
-            }
-
-            if (!matched) {
-                if (paramNode != null) {
-                    String variableName = paramNode.getName();
-                    paramsContainer.addParam(variableName, pathSegment);
-                    nodeToInspect = paramNode;
                 } else {
-                    // totally unmatched. no such route
-                    break;
+                    String variableName = paramChildNode.getName();
+                    paramsContainer.addParam(variableName, pathSegment);
+                    nodeToInspect = paramChildNode;
                 }
             }
 
@@ -94,48 +82,41 @@ public class HttpRouter<T> {
         Node<T> nodeToInspect = routesByHttpMethod.get(httpMethod); // start from root node
         if (nodeToInspect == null) {
             // create root node if necessary
-            nodeToInspect = new Node<>(null, false);
+            nodeToInspect = new Node<>(null);
             routesByHttpMethod.put(httpMethod, nodeToInspect);
         }
 
         List<String> pathSegments = UrlUtil.toPathSegments(path);
         int pathSegmentsCount = pathSegments.size();
         for (int i = 0; i < pathSegmentsCount; i++) {
-            List<Node<T>> childNodes = nodeToInspect.getChildNodes();
-
             String currentSegment = pathSegments.get(i);
             boolean isParametrizedSegment = currentSegment.startsWith(":");
             String currentSegmentName = isParametrizedSegment ? currentSegment.substring(1) : currentSegment;
-            boolean nodeMatched = false;
-            Node<T> paramNode = null;
-            boolean paramNodeFound = false;
 
-            for (Node<T> childNode : childNodes) {
-                if (!paramNodeFound) {
-                    paramNodeFound = childNode.isParam();
-                    if (paramNodeFound) {
-                        // maybe need later for diagnostic message
-                        paramNode = childNode;
+            if (isParametrizedSegment) {
+                var paramChildNode = nodeToInspect.getParamChildNode();
+                if (paramChildNode != null) {
+                    if (!paramChildNode.getName().equals(currentSegmentName)) {
+                        /* Throw exception for cases like '/users/:login/posts' and '/users/:username/followers' */
+                        /* In such cases params must have the same name. For example '/users/:login/posts' and '/users/:login/followers' */
+                        String error = String.format("Path variables at the same position must have the same name. Problem with parameters :%s and :%s", currentSegmentName, paramChildNode.getName());
+                        throw new IllegalArgumentException(error);
                     }
+                    nodeToInspect = paramChildNode;
+                } else {
+                    var newNode = new Node<T>(currentSegmentName);
+                    nodeToInspect.setParamChildNode(newNode);
+                    nodeToInspect = newNode;
                 }
-                if (currentSegmentName.equals(childNode.getName())) {
-                    nodeMatched = true;
-                    nodeToInspect = childNode; // to the next level
-                    break;
+            } else {
+                var childNode = nodeToInspect.getChildNode(currentSegmentName);
+                if (childNode != null) {
+                    nodeToInspect = childNode;
+                } else {
+                    var newNode = new Node<T>(currentSegmentName);
+                    nodeToInspect.addChildNode(newNode);
+                    nodeToInspect = newNode;
                 }
-            }
-
-            if (!nodeMatched && paramNodeFound && isParametrizedSegment) {
-                /* Throw exception for cases like '/users/:login/posts' and '/users/:username/followers' */
-                /* In such cases params must have the same name. For example '/users/:login/posts' and '/users/:login/followers' */
-                String error = String.format("Path variables at the same position must have the same name. Problem with parameters :%s and :%s", currentSegmentName, paramNode.getName());
-                throw new IllegalArgumentException(error);
-            }
-
-            if (!nodeMatched) {
-                var newNode = new Node<T>(currentSegmentName, isParametrizedSegment);
-                childNodes.add(newNode);
-                nodeToInspect = newNode;
             }
 
             if (i == (pathSegmentsCount - 1)) {
