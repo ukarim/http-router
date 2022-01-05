@@ -9,14 +9,14 @@ import com.ukarim.httprouter.*;
 
 // create and setup http router instance
 var router = new HttpRouter<HttpHandler>();
-router.GET("/users", new UsersListHandler());
-router.GET("/users/:login", new UserProfileHandler());
-router.POST("/users", new UserCreationHandler());
+router.get("/users", new UsersListHandler());
+router.get("/users/:login", new UserProfileHandler());
+router.post("/users", new UserCreationHandler());
 
 // get a handler for specific http request
 var routerMatch = router.match("GET", "/users/ukarim");
 var params = routerMatch.getParams(); // contains path variables
-var httpHandler = routerMatch.getAttachment();
+var httpHandler = routerMatch.getHandler();
 ```
 
 See [JettyExample.java](src/test/java/com/ukarim/httprouter/example/JettyExample.java)

@@ -11,7 +11,7 @@ final class Node<T> {
 
     private Node<T> paramChildNode;
 
-    private T attachment;
+    private T handler;
 
     Node(String name) {
         this.name = name;
@@ -37,11 +37,11 @@ final class Node<T> {
         this.paramChildNode = paramChildNode;
     }
 
-    T getAttachment() {
-        return attachment;
+    T getHandler() {
+        return handler;
     }
 
-    void setAttachment(T attachment) {
-        this.attachment = attachment;
+    void setHandler(T handler) {
+        this.handler = handler;
     }
 }

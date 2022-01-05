@@ -1,38 +1,45 @@
 package com.ukarim.httprouter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 
 public final class Params {
 
-    private Map<String, List<String>> params;
+    private static final String[] EMPTY_ARR = new String[0];
+
+    private Map<String, String[]> params;
 
     public void addParam(String name, String value) {
         if (params == null) {
             params = new HashMap<>();
         }
-        var paramsList = params.get(name);
-        if (paramsList == null) {
-            paramsList = new ArrayList<String>(1);
-            params.put(name, paramsList);
+        var paramsArr = params.get(name);
+        if (paramsArr == null) {
+            paramsArr = new String[]{ value };
+            params.put(name, paramsArr);
+        } else {
+            // grow and copy
+            paramsArr = Arrays.copyOf(paramsArr, paramsArr.length + 1);
+            paramsArr[paramsArr.length - 1] = value;
         }
-        paramsList.add(value);
     }
 
-    public List<String> getParams(String name) {
+    public String[] getParams(String name) {
         if (params == null) {
-            return Collections.emptyList();
+            return EMPTY_ARR;
         }
-        return params.getOrDefault(name, Collections.emptyList());
+        return params.getOrDefault(name, EMPTY_ARR);
     }
 
     public String getParam(String name) {
         if (params == null) {
             return null;
         }
-        List<String> params = this.params.get(name);
-        if (params == null || params.isEmpty()) {
+        String[] params = this.params.get(name);
+        if (params == null || params.length == 0) {
             return null;
         }
-        return params.get(0);
+        return params[0];
     }
 }

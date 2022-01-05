@@ -42,15 +42,15 @@ class RoutingHandler extends AbstractHandler {
 
     public RoutingHandler() {
         httpRouter
-                .GET("/users/:username/uppercase", new UppercaseUsernameHandler())
-                .POST("/random-num", new RandomNumHandler());
+                .get("/users/:username/uppercase", new UppercaseUsernameHandler())
+                .post("/random-num", new RandomNumHandler());
     }
 
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         var routerMatch = httpRouter.match(baseRequest.getMethod(), target);
         if (routerMatch != null) {
-            HttpHandler handler = routerMatch.getAttachment();
+            HttpHandler handler = routerMatch.getHandler();
             Params params = routerMatch.getParams();
 
             handler.handle(request, response, params);

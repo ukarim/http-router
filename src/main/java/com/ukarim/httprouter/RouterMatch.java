@@ -4,18 +4,18 @@ public class RouterMatch<T> {
 
     private final Params params;
 
-    private final T attachment;
+    private final T handler;
 
-    public RouterMatch(Params params, T attachment) {
+    public RouterMatch(Params params, T handler) {
         this.params = params;
-        this.attachment = attachment;
+        this.handler = handler;
     }
 
     public Params getParams() {
         return params;
     }
 
-    public T getAttachment() {
-        return attachment;
+    public T getHandler() {
+        return handler;
     }
 }
