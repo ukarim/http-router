@@ -2,20 +2,30 @@ package com.ukarim.httprouter;
 
 public class RouterMatch<T> {
 
-    private final Params params;
+    private T handler;
 
-    private final T attachment;
+    private PathParams pathParams;
 
-    public RouterMatch(Params params, T attachment) {
-        this.params = params;
-        this.attachment = attachment;
+    RouterMatch(T handler) {
+        this.handler = handler;
     }
 
-    public Params getParams() {
-        return params;
+    public PathParams getPathParams() {
+        return pathParams != null ? pathParams : PathParams.EMPTY;
     }
 
-    public T getAttachment() {
-        return attachment;
+    public T getHandler() {
+        return handler;
+    }
+
+    void addPathParam(String name, String value) {
+        if (pathParams == null) {
+            pathParams = new PathParams();
+        }
+        pathParams.addParam(name, value);
+    }
+
+    void setHandler(T handler) {
+        this.handler = handler;
     }
 }

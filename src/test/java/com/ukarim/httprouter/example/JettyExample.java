@@ -1,7 +1,7 @@
 package com.ukarim.httprouter.example;
 
 import com.ukarim.httprouter.HttpRouter;
-import com.ukarim.httprouter.Params;
+import com.ukarim.httprouter.PathParams;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,18 +42,18 @@ class RoutingHandler extends AbstractHandler {
 
     public RoutingHandler() {
         httpRouter
-                .GET("/users/:username/uppercase", new UppercaseUsernameHandler())
-                .POST("/random-num", new RandomNumHandler());
+                .get("/users/:username/uppercase", new UppercaseUsernameHandler())
+                .post("/random-num", new RandomNumHandler());
     }
 
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         var routerMatch = httpRouter.match(baseRequest.getMethod(), target);
         if (routerMatch != null) {
-            HttpHandler handler = routerMatch.getAttachment();
-            Params params = routerMatch.getParams();
+            HttpHandler handler = routerMatch.getHandler();
+            PathParams pathParams = routerMatch.getPathParams();
 
-            handler.handle(request, response, params);
+            handler.handle(request, response, pathParams);
             baseRequest.setHandled(true); // otherwise you will receive default 404 page
         }
     }
@@ -64,14 +64,14 @@ class RoutingHandler extends AbstractHandler {
 interface HttpHandler {
     // our version of http handler that receives Params arg
 
-    void handle(HttpServletRequest request, HttpServletResponse response, Params params) throws IOException, ServletException;
+    void handle(HttpServletRequest request, HttpServletResponse response, PathParams pathParams) throws IOException, ServletException;
 }
 
 class UppercaseUsernameHandler implements HttpHandler {
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, Params params) throws IOException {
-        String username = params.getParam("username");
+    public void handle(HttpServletRequest request, HttpServletResponse response, PathParams pathParams) throws IOException {
+        String username = pathParams.getParam("username");
         response.setStatus(200);
         response.setContentType("text/plain;charset=utf-8");
         response.getWriter().write("Uppercase username: " + username.toUpperCase() + "\n");
@@ -83,7 +83,7 @@ class RandomNumHandler implements HttpHandler {
     private final SecureRandom random = new SecureRandom();
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, Params params) throws IOException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, PathParams pathParams) throws IOException {
         response.setStatus(200);
         response.setContentType("text/plain;charset=utf-8");
         String respText = String.format("Random num between 0 and 100: %s\n", random.nextInt(100));
