@@ -15,7 +15,7 @@ router.post("/users", new UserCreationHandler());
 
 // get a handler for specific http request
 var routerMatch = router.match("GET", "/users/ukarim");
-var params = routerMatch.getParams(); // contains path variables
+var pathParams = routerMatch.getPathParams(); // contains path variables
 var httpHandler = routerMatch.getHandler();
 ```
 
@@ -49,7 +49,7 @@ Add the following configs to your pom.xml file:
     <dependency>
         <groupId>com.ukarim</groupId>
         <artifactId>http-router</artifactId>
-        <version>0.1.1</version> <!-- replace by latest version from https://github.com/ukarim/http-router/blob/main/pom.xml file -->
+        <version>0.2.0</version> <!-- replace by latest version from https://github.com/ukarim/http-router/blob/main/pom.xml file -->
     </dependency>
 </dependencies>
 ```

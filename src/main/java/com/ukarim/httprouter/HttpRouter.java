@@ -27,15 +27,15 @@ public class HttpRouter<T> {
 
 
     public RouterMatch<T> match(String httpMethod, String path) {
+        RouterMatch<T> routerMatch = new RouterMatch<>(notFoundHandler);
         Node<T> nodeToInspect = routesByHttpMethod.get(httpMethod);
         if (nodeToInspect == null) {
-            return notFoundMatch(new Params());
+            return routerMatch;
         }
 
         List<String> pathSegments = UrlUtil.toPathSegments(path);
         int pathSegmentsCount = pathSegments.size();
         Node<T> matchedNode = null;
-        var paramsContainer = new Params();
 
         for (int i = 0; i < pathSegmentsCount; i++) {
             String pathSegment = pathSegments.get(i);
@@ -50,7 +50,7 @@ public class HttpRouter<T> {
                     break;
                 } else {
                     String variableName = paramChildNode.getName();
-                    paramsContainer.addParam(variableName, pathSegment);
+                    routerMatch.addPathParam(variableName, pathSegment);
                     nodeToInspect = paramChildNode;
                 }
             }
@@ -61,22 +61,15 @@ public class HttpRouter<T> {
         }
 
         if (matchedNode == null) {
-            return notFoundMatch(paramsContainer);
+            return routerMatch;
         }
 
         T handler = matchedNode.getHandler();
+
         if (handler == null) {
-            return notFoundMatch(paramsContainer);
+            return routerMatch;
         }
-
-        return new RouterMatch<>(paramsContainer, handler);
-    }
-
-    private RouterMatch<T> notFoundMatch(Params params) {
-        RouterMatch<T> routerMatch = null;
-        if (notFoundHandler != null) {
-            routerMatch = new RouterMatch<>(params, notFoundHandler);
-        }
+        routerMatch.setHandler(handler);
         return routerMatch;
     }
 

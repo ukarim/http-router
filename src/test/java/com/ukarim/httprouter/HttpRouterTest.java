@@ -47,7 +47,7 @@ class HttpRouterTest {
         RouterMatch<String> routerMatchGet = httpRouter.match("GET", "/users/ukarim/posts");
         Assertions.assertNotNull(routerMatchGet);
         Assertions.assertEquals(handler, routerMatchGet.getHandler());
-        Assertions.assertEquals("ukarim", routerMatchGet.getParams().getParam("login"));
+        Assertions.assertEquals("ukarim", routerMatchGet.getPathParams().getParam("login"));
 
         RouterMatch<String> routerMatchPost = httpRouter.match("POST", "/users/new");
         Assertions.assertNotNull(routerMatchPost);
@@ -56,8 +56,8 @@ class HttpRouterTest {
         RouterMatch<String> routerMatch2Param = httpRouter.match("GET", "/users/ukarim/comments/1024");
         Assertions.assertNotNull(routerMatch2Param);
         Assertions.assertEquals(handler, routerMatch2Param.getHandler());
-        Assertions.assertEquals("ukarim", routerMatch2Param.getParams().getParam("login"));
-        Assertions.assertEquals("1024", routerMatch2Param.getParams().getParam("comment_id"));
+        Assertions.assertEquals("ukarim", routerMatch2Param.getPathParams().getParam("login"));
+        Assertions.assertEquals("1024", routerMatch2Param.getPathParams().getParam("comment_id"));
     }
 
     @Test
